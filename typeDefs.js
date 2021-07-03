@@ -34,7 +34,12 @@ const typeDefs = gql`
       password: String
       confirmPassword: String
     ): passwordChangedObject
+
     createNote(content: String, image: String): Note
+
+    editNote(content: String, image: String, noteId: String): Note
+
+    deleteNote(noteId: String): String
   }
 `;
 

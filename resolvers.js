@@ -3,7 +3,11 @@ const {
   signinUser,
   changePassword,
 } = require("./resolvers/userResolver");
-const { createNote } = require("./resolvers/noteResolver");
+const {
+  createNote,
+  editNote,
+  deleteNote,
+} = require("./resolvers/noteResolver");
 
 const resolvers = {
   Query: {
@@ -14,6 +18,8 @@ const resolvers = {
     signupUser: signupUser,
     changePassword: changePassword,
     createNote: createNote,
+    editNote: editNote,
+    deleteNote: deleteNote,
   },
 };
 
