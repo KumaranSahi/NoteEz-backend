@@ -1,6 +1,10 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { hashingPasswords, emailIdCheck } = require("../utils/utils");
+const {
+  hashingPasswords,
+  emailIdCheck,
+  confirmPasswordCheck,
+} = require("../utils/utils");
 const { UserInputError, ApolloError } = require("apollo-server-express");
 const { cloudinary } = require("../config/cloudinary");
 const { User } = require("../models");
@@ -36,27 +40,50 @@ const signupUser = async (_, { name, email, password, image }) => {
       };
     }
   } catch (error) {
+    console.log(error);
     throw new ApolloError("Internal server error");
   }
 };
 
 const signinUser = async (_, { email, password }) => {
-  //   try {
-  const user = await User.findOne({ email: email });
-  console.log(user.password);
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    throw new UserInputError("Invalid username or password");
+  try {
+    const user = await User.findOne({ email: email });
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      throw new UserInputError("Invalid username or password");
+    }
+    return {
+      name: user.name,
+      image: user.image ? user.image.imageUrl : null,
+      token: jwt.sign({ userId: user._id }, process.env["SECRET"], {
+        expiresIn: "24h",
+      }),
+    };
+  } catch (error) {
+    console.log(error);
+    throw new ApolloError("Internal server error");
   }
-  return {
-    name: user.name,
-    image: user.image ? user.image.imageUrl : null,
-    token: jwt.sign({ userId: user._id }, process.env["SECRET"], {
-      expiresIn: "24h",
-    }),
-  };
-  //   } catch (error) {
-  //     throw new ApolloError("Internal server error");
-  //   }
 };
 
-module.exports = { signupUser, signinUser };
+const changePassword = async (_, { email, password, confirmPassword }) => {
+  try {
+    if (confirmPasswordCheck(password, confirmPassword)) {
+      throw new UserInputError("Invalid Request");
+    }
+    const user = await User.findOne({ email: email });
+    if (user) {
+      const newPassword = await hashingPasswords(password);
+      await user.updateOne({ password: newPassword });
+      return {
+        ok: true,
+        message: "User password changed",
+      };
+    } else {
+      throw new UserInputError("Invalid Email");
+    }
+  } catch (error) {
+    console.log(error);
+    throw new ApolloError("Internal server error");
+  }
+};
+
+module.exports = { signupUser, signinUser, changePassword };

@@ -1,4 +1,8 @@
-const { signupUser, signinUser } = require("./resolvers/userResolver");
+const {
+  signupUser,
+  signinUser,
+  changePassword,
+} = require("./resolvers/userResolver");
 
 const resolvers = {
   Query: {
@@ -8,6 +12,7 @@ const resolvers = {
   Mutation: {
     signupUser: signupUser,
     signinUser: signinUser,
+    changePassword: changePassword,
     // createNote: async (_, { content, image }) => {
     //   const note = await Note.create({
     //     content: content,

@@ -22,6 +22,11 @@ const typeDefs = gql`
     token: String
   }
 
+  type passwordChangedObject {
+    ok: Boolean
+    message: String
+  }
+
   type Mutation {
     signupUser(
       name: String
@@ -31,6 +36,11 @@ const typeDefs = gql`
     ): SignupObject
 
     signinUser(email: String, password: String): SigninObject
+    changePassword(
+      email: String
+      password: String
+      confirmPassword: String
+    ): passwordChangedObject
     # createNote(content: String, image: String): Note
   }
 `;
