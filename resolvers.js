@@ -3,22 +3,17 @@ const {
   signinUser,
   changePassword,
 } = require("./resolvers/userResolver");
+const { createNote } = require("./resolvers/noteResolver");
 
 const resolvers = {
   Query: {
-    hello: () => "Heyyo",
+    signinUser: signinUser,
   },
 
   Mutation: {
     signupUser: signupUser,
-    signinUser: signinUser,
     changePassword: changePassword,
-    // createNote: async (_, { content, image }) => {
-    //   const note = await Note.create({
-    //     content: content,
-    //   });
-    //   return note;
-    // },
+    createNote: createNote,
   },
 };
 

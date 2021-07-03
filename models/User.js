@@ -15,14 +15,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    image: {
-      public_id: {
-        type: String,
-      },
-      imageUrl: {
-        type: String,
-      },
-    },
     notes: [
       {
         type: Schema.Types.ObjectId,

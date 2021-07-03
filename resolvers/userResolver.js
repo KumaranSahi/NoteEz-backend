@@ -6,7 +6,6 @@ const {
   confirmPasswordCheck,
 } = require("../utils/utils");
 const { UserInputError, ApolloError } = require("apollo-server-express");
-const { cloudinary } = require("../config/cloudinary");
 const { User } = require("../models");
 
 const signupUser = async (_, { name, email, password, image }) => {
@@ -17,21 +16,11 @@ const signupUser = async (_, { name, email, password, image }) => {
     if (await User.findOne({ email: email })) {
       throw new UserInputError("User Already Exists!");
     }
-    let uploadInfo;
-    let imageData;
-    if (image) {
-      uploadInfo = await cloudinary.uploader.upload(image);
-      imageData = {
-        public_id: uploadInfo.public_id,
-        imageUrl: uploadInfo.url,
-      };
-    }
     const newPassword = await hashingPasswords(password);
     data = await User.create({
       name: name,
       email: email,
       password: newPassword,
-      image: imageData,
     });
     if (data) {
       return {
@@ -53,7 +42,6 @@ const signinUser = async (_, { email, password }) => {
     }
     return {
       name: user.name,
-      image: user.image ? user.image.imageUrl : null,
       token: jwt.sign({ userId: user._id }, process.env["SECRET"], {
         expiresIn: "24h",
       }),

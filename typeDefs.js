@@ -2,7 +2,7 @@ const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
   type Query {
-    hello: String
+    signinUser(email: String, password: String): SigninObject
   }
 
   type Note {
@@ -18,7 +18,6 @@ const typeDefs = gql`
 
   type SigninObject {
     name: String
-    image: String
     token: String
   }
 
@@ -28,20 +27,14 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    signupUser(
-      name: String
-      email: String
-      password: String
-      image: String
-    ): SignupObject
+    signupUser(name: String, email: String, password: String): SignupObject
 
-    signinUser(email: String, password: String): SigninObject
     changePassword(
       email: String
       password: String
       confirmPassword: String
     ): passwordChangedObject
-    # createNote(content: String, image: String): Note
+    createNote(content: String, image: String): Note
   }
 `;
 
