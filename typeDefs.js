@@ -6,10 +6,4 @@ const typeDefs = gql`
   }
 `;
 
-const resolvers = {
-  Query: {
-    hello: () => "Heyyo",
-  },
-};
-
-module.exports = { typeDefs, resolvers };
+module.exports = { typeDefs };
