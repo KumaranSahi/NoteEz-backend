@@ -2,17 +2,12 @@ const { Schema, Model, model } = require("mongoose");
 
 const noteSchema = new Schema(
   {
-    content: {
+    title:{
       type: String,
       required: true,
     },
-    image: {
-      public_id: {
-        type: String,
-      },
-      imageUrl: {
-        type: String,
-      },
+    content: {
+      type: String,
     },
     by: {
       type: Schema.Types.ObjectId,

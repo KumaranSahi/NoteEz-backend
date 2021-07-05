@@ -1,25 +1,15 @@
 const { Note, User } = require("../models");
 const { AuthenticationError, ApolloError } = require("apollo-server-express");
-const { cloudinary } = require("../config/cloudinary");
 
-const createNote = async (_, { content, image }, { req }) => {
+const createNote = async (_, { content, title }, { req }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Unauthenticated!");
   }
   const userId = req.userId;
   try {
-    let uploadInfo;
-    let imageData;
-    if (image) {
-      uploadInfo = await cloudinary.uploader.upload(image);
-      imageData = {
-        public_id: uploadInfo.public_id,
-        imageUrl: uploadInfo.url,
-      };
-    }
     const note = await Note.create({
       content: content,
-      image: imageData || undefined,
+      title: title,
       by: userId,
     });
     const user = await User.findById(userId);
@@ -28,7 +18,7 @@ const createNote = async (_, { content, image }, { req }) => {
     return {
       id: note._id,
       content: note.content,
-      image: note.image.imageUrl,
+      title: title,
     };
   } catch (error) {
     console.log(error);
@@ -36,33 +26,21 @@ const createNote = async (_, { content, image }, { req }) => {
   }
 };
 
-const editNote = async (_, { content, image, noteId }, { req }) => {
+const editNote = async (_, { content, title, noteId }, { req }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Unauthenticated!");
   }
   try {
     const note = await Note.findById(noteId);
-    let uploadInfo;
-    let imageData;
-    if (image && image.length > 0) {
-      if (note.image) await cloudinary.uploader.destroy(note.image.public_id);
-      uploadInfo = await cloudinary.uploader.upload(image);
-      imageData = {
-        public_id: uploadInfo.public_id,
-        imageUrl: uploadInfo.url,
-      };
-      await note.updateOne({
-        image: imageData,
-      });
-    }
     await note.updateOne({
+      title: title,
       content: content,
     });
 
     return {
       id: noteId,
       content: content,
-      image: imageData ? imageData.imageUrl : null,
+      title: title,
     };
   } catch (error) {
     console.log(error);
@@ -78,8 +56,6 @@ const deleteNote = async (_, { noteId }, { req }) => {
   try {
     await User.findByIdAndUpdate(userId, { $pull: { notes: noteId } });
     const note = await Note.findById(noteId);
-    if (note.image.length > 0)
-      await cloudinary.uploader.destroy(note.image.public_id);
     await note.deleteOne();
     return noteId;
   } catch (error) {

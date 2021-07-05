@@ -8,13 +8,19 @@ const {
 const { UserInputError, ApolloError } = require("apollo-server-express");
 const { User } = require("../models");
 
-const signupUser = async (_, { name, email, password, image }) => {
+const signupUser = async (_, { name, email, password }) => {
   if (!name || !email || !password || !emailIdCheck(email)) {
-    throw new UserInputError("Invalid Request");
+    return {
+      ok: false,
+      message: "INVALID_INPUT",
+    };
   }
   try {
     if (await User.findOne({ email: email })) {
-      throw new UserInputError("User Already Exists!");
+      return {
+        ok: false,
+        message: "USER_EXISTS",
+      };
     }
     const newPassword = await hashingPasswords(password);
     data = await User.create({
@@ -25,12 +31,15 @@ const signupUser = async (_, { name, email, password, image }) => {
     if (data) {
       return {
         ok: true,
-        message: "User signed up",
+        message: "USER_SIGNED_UP",
       };
     }
   } catch (error) {
     console.log(error);
-    throw new ApolloError("Internal server error");
+    return {
+        ok: false,
+        message: "INTERNAL_ERROR",
+      };
   }
 };
 

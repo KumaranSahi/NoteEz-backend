@@ -8,7 +8,7 @@ const typeDefs = gql`
   type Note {
     id: ID
     content: String
-    image: String
+    title: String
   }
 
   type SignupObject {
@@ -35,9 +35,9 @@ const typeDefs = gql`
       confirmPassword: String
     ): passwordChangedObject
 
-    createNote(content: String, image: String): Note
+    createNote(content: String, title: String): Note
 
-    editNote(content: String, image: String, noteId: String): Note
+    editNote(content: String, title: String, noteId: String): Note
 
     deleteNote(noteId: String): String
   }
