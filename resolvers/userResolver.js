@@ -5,7 +5,6 @@ const {
   emailIdCheck,
   confirmPasswordCheck,
 } = require("../utils/utils");
-const { UserInputError, ApolloError } = require("apollo-server-express");
 const { User } = require("../models");
 
 const signupUser = async (_, { name, email, password }) => {
@@ -37,9 +36,9 @@ const signupUser = async (_, { name, email, password }) => {
   } catch (error) {
     console.log(error);
     return {
-        ok: false,
-        message: "INTERNAL_ERROR",
-      };
+      ok: false,
+      message: "INTERNAL_ERROR",
+    };
   }
 };
 
@@ -47,9 +46,14 @@ const signinUser = async (_, { email, password }) => {
   try {
     const user = await User.findOne({ email: email });
     if (!user || !bcrypt.compareSync(password, user.password)) {
-      throw new UserInputError("Invalid username or password");
+      return {
+        ok: false,
+        message: "INVALID_USERNAME_PASSWORD",
+      };
     }
     return {
+      ok: true,
+      message: "USER_SIGNED_IN",
       name: user.name,
       token: jwt.sign({ userId: user._id }, process.env["SECRET"], {
         expiresIn: "24h",
@@ -57,14 +61,20 @@ const signinUser = async (_, { email, password }) => {
     };
   } catch (error) {
     console.log(error);
-    throw new ApolloError("Internal server error");
+    return {
+      ok: false,
+      message: "INTERNAL_ERROR",
+    };
   }
 };
 
 const changePassword = async (_, { email, password, confirmPassword }) => {
   try {
     if (confirmPasswordCheck(password, confirmPassword)) {
-      throw new UserInputError("Invalid Request");
+      return {
+        ok: false,
+        message: "INVALID_INPUT",
+      };
     }
     const user = await User.findOne({ email: email });
     if (user) {
@@ -72,14 +82,20 @@ const changePassword = async (_, { email, password, confirmPassword }) => {
       await user.updateOne({ password: newPassword });
       return {
         ok: true,
-        message: "User password changed",
+        message: "PASSWORD_CHANGED",
       };
     } else {
-      throw new UserInputError("Invalid Email");
+      return {
+        ok: false,
+        message: "INVALID_INPUT",
+      };
     }
   } catch (error) {
     console.log(error);
-    throw new ApolloError("Internal server error");
+    return {
+      ok: false,
+      message: "INTERNAL_ERROR",
+    };
   }
 };
 

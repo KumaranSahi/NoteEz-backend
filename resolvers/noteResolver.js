@@ -1,9 +1,39 @@
 const { Note, User } = require("../models");
 const { AuthenticationError, ApolloError } = require("apollo-server-express");
 
+const fetchNotes = async (_, __, { req }) => {
+  if (!req.isAuth) {
+    return {
+      ok: false,
+      message: "UNAUTHORIZED",
+    };
+  }
+  const userId = req.userId;
+  try {
+    const populatedUser = await (
+      await User.findById(userId)
+    ).execPopulate("notes");
+
+    return {
+      ok: true,
+      message: "FETCHED_NOTES",
+      notes: populatedUser.notes
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      ok: false,
+      message: "INTERNAL_ERROR",
+    };
+  }
+};
+
 const createNote = async (_, { content, title }, { req }) => {
   if (!req.isAuth) {
-    throw new AuthenticationError("Unauthenticated!");
+    return {
+      ok: false,
+      message: "UNAUTHORIZED",
+    };
   }
   const userId = req.userId;
   try {
@@ -16,13 +46,18 @@ const createNote = async (_, { content, title }, { req }) => {
     user.notes.push(note._id);
     user.save();
     return {
+      ok: true,
+      message: "NOTE_ADDED",
       id: note._id,
       content: note.content,
       title: title,
     };
   } catch (error) {
     console.log(error);
-    throw new ApolloError("Internal server error");
+    return {
+      ok: false,
+      message: "INTERNAL_ERROR",
+    };
   }
 };
 
@@ -64,4 +99,4 @@ const deleteNote = async (_, { noteId }, { req }) => {
   }
 };
 
-module.exports = { createNote, editNote, deleteNote };
+module.exports = { fetchNotes, createNote, editNote, deleteNote };

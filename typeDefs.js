@@ -2,7 +2,8 @@ const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
   type Query {
-    signinUser(email: String, password: String): SigninObject
+    signinUser(email: String, password: String): SigninObject,
+    fetchNotes:FetchedNotes
   }
 
   type Note {
@@ -11,12 +12,28 @@ const typeDefs = gql`
     title: String
   }
 
+  type FetchedNotes {
+    ok: Boolean
+    message: String
+    notes: [Note]
+  }
+
+  type NoteObject {
+    id: ID
+    content: String
+    title: String
+    ok: Boolean
+    message: String
+  }
+
   type SignupObject {
     ok: Boolean
     message: String
   }
 
   type SigninObject {
+    ok: Boolean
+    message: String
     name: String
     token: String
   }
@@ -35,9 +52,9 @@ const typeDefs = gql`
       confirmPassword: String
     ): passwordChangedObject
 
-    createNote(content: String, title: String): Note
+    createNote(content: String, title: String): NoteObject
 
-    editNote(content: String, title: String, noteId: String): Note
+    editNote(content: String, title: String, noteId: String): NoteObject
 
     deleteNote(noteId: String): String
   }

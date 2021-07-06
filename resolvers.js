@@ -4,6 +4,7 @@ const {
   changePassword,
 } = require("./resolvers/userResolver");
 const {
+  fetchNotes,
   createNote,
   editNote,
   deleteNote,
@@ -12,6 +13,7 @@ const {
 const resolvers = {
   Query: {
     signinUser: signinUser,
+    fetchNotes: fetchNotes,
   },
 
   Mutation: {
