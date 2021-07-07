@@ -17,7 +17,7 @@ const fetchNotes = async (_, __, { req }) => {
     return {
       ok: true,
       message: "FETCHED_NOTES",
-      notes: populatedUser.notes
+      notes: populatedUser.notes,
     };
   } catch (error) {
     console.log(error);
@@ -63,7 +63,10 @@ const createNote = async (_, { content, title }, { req }) => {
 
 const editNote = async (_, { content, title, noteId }, { req }) => {
   if (!req.isAuth) {
-    throw new AuthenticationError("Unauthenticated!");
+    return {
+      ok: false,
+      message: "UNAUTHORIZED",
+    };
   }
   try {
     const note = await Note.findById(noteId);
@@ -73,29 +76,44 @@ const editNote = async (_, { content, title, noteId }, { req }) => {
     });
 
     return {
+      ok: true,
+      message: "NOTE_EDITED",
       id: noteId,
       content: content,
       title: title,
     };
   } catch (error) {
     console.log(error);
-    throw new ApolloError("Internal server error");
+    return {
+      ok: false,
+      message: "INTERNAL_ERROR",
+    };
   }
 };
 
 const deleteNote = async (_, { noteId }, { req }) => {
   if (!req.isAuth) {
-    throw new AuthenticationError("Unauthenticated!");
+    return {
+      ok: false,
+      message: "UNAUTHORIZED",
+    };
   }
   const userId = req.userId;
   try {
     await User.findByIdAndUpdate(userId, { $pull: { notes: noteId } });
     const note = await Note.findById(noteId);
     await note.deleteOne();
-    return noteId;
+    return {
+      ok: true,
+      message: "NOTE_DELETED",
+      id: noteId,
+    };
   } catch (error) {
     console.log(error);
-    throw new ApolloError("Internal server error");
+    return {
+      ok: false,
+      message: "INTERNAL_ERROR",
+    };
   }
 };
 
