@@ -19,6 +19,8 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req, res }) => ({ req, res }),
+  introspection: true,
+  playground: true,
 });
 
 server.applyMiddleware({ app });
