@@ -68,6 +68,26 @@ const signinUser = async (_, { email, password }) => {
   }
 };
 
+const guestSigninUser = async () => {
+  try {
+    const user = await User.findById(process.env["GUEST_USER_ID"]);
+    return {
+      ok: true,
+      message: "GUEST_USER_SIGNED_IN",
+      name: user.name,
+      token: jwt.sign({ userId: user._id }, process.env["SECRET"], {
+        expiresIn: "24h",
+      }),
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      ok: false,
+      message: "INTERNAL_ERROR",
+    };
+  }
+};
+
 const changePassword = async (_, { email, password, confirmPassword }) => {
   try {
     if (confirmPasswordCheck(password, confirmPassword)) {
@@ -99,4 +119,4 @@ const changePassword = async (_, { email, password, confirmPassword }) => {
   }
 };
 
-module.exports = { signupUser, signinUser, changePassword };
+module.exports = { signupUser, signinUser, changePassword, guestSigninUser };

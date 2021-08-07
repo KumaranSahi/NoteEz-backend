@@ -4,6 +4,7 @@ const typeDefs = gql`
   type Query {
     signinUser(email: String, password: String): SigninObject
     fetchNotes: FetchedNotes
+    signinGuest: SigninObject
   }
 
   type Note {
